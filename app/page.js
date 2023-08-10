@@ -63,13 +63,7 @@ export default function Home() {
               onChange={handleChange("email")}
               placeholder="Paypal mail"
             />
-            <button
-              onClick={() =>
-                setMode((prev) => (prev === "crypto" ? "paypal" : "crypto"))
-              }
-            >
-              Switch
-            </button>
+            <button onClick={() => setMode("paypal")}>Switch</button>
           </div>
         ) : (
           <div className={styles.crypto}>
@@ -101,9 +95,10 @@ export default function Home() {
               onChange={handleChange("wallet")}
               placeholder="Wallet Address"
             />
-            <button>Switch</button>
+            <button onClick={() => setMode("crypto")}>Switch</button>
           </div>
         )}
+        <button>Submit</button>
       </section>
     </main>
   );
