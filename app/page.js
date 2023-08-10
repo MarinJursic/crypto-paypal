@@ -31,6 +31,29 @@ export default function Home() {
     }
   };
 
+  const submit = (e) => {
+    e.preventDefault();
+
+    const data = {
+      method: mode,
+      coin: crypto,
+      amount: cryptoAmount,
+      mail: email,
+      wallet,
+    };
+    const postData = async () => {
+      const response = await fetch("/api/exchange", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return response.json();
+    };
+
+    postData().then((data) => {
+      alert(data.message);
+    });
+  };
+
   return (
     <main className={styles.main}>
       <section className={styles.exchanger}>
@@ -98,7 +121,7 @@ export default function Home() {
             <button onClick={() => setMode("crypto")}>Switch</button>
           </div>
         )}
-        <button>Submit</button>
+        <button onClick={submit}>Submit</button>
       </section>
     </main>
   );
