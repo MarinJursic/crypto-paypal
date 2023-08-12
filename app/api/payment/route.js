@@ -8,6 +8,10 @@ const CoinGeckoClient = new CoinGecko();
 export async function POST(req) {
   const payment = await req.json();
 
+  console.log(
+    `PROCESSING PAYMENT ${payment.order_id}... STATUS: ${payment.payment_status}`
+  );
+
   const hmac = crypto.createHmac("sha512", process.env.NPnotificationsKey);
   hmac.update(JSON.stringify(req.body, Object.keys(req.body).sort()));
   const signature = hmac.digest("hex");
@@ -27,7 +31,14 @@ export async function POST(req) {
   };
 
   if (payment.pay_currency !== "usdttrc20") {
-    let cryptoData = await CoinGeckoClient.coins.fetch("bitcoin", {});
+    let cryptoData = await CoinGeckoClient.coins.fetch(
+      currencies[payment.pay_currency],
+      {}
+    );
+
+    console.log(
+      `${payment.pay_currency} is worth ${cryptoData.data.market_data.current_price.usd}`
+    );
 
     paid *= cryptoData.data.market_data.current_price.usd;
   }

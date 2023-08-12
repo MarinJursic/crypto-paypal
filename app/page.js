@@ -61,7 +61,11 @@ export default function Home() {
     };
 
     postData().then((data) => {
-      router.push(data.invoice);
+      if (data.invoice) {
+        router.push(data.invoice);
+      } else {
+        alert(data.error);
+      }
     });
   };
 
@@ -78,10 +82,12 @@ export default function Home() {
               onChange={handleChange("crypto")}
               className={styles.sel}
             >
-              <MenuItem value={"BTC"}>BTC</MenuItem>
-              <MenuItem value={"BCH"}>BCH</MenuItem>
-              <MenuItem value={"LTC"}>LTC</MenuItem>
-              <MenuItem value={"usdttrc20"}>USDT-TRC20</MenuItem>
+              <MenuItem value={"btc"}>BTC</MenuItem>
+              <MenuItem value={"eth"}>ETH</MenuItem>
+              <MenuItem value={"ltc"}>LTC</MenuItem>
+              <MenuItem value={"sol"}>SOL</MenuItem>
+              <MenuItem value={"usdttrc20"}>USDTTRC20</MenuItem>
+              <MenuItem value={"usdc"}>USDC</MenuItem>
             </Select>
             <OutlinedInput
               id="outlined-adornment-amount"
@@ -120,9 +126,12 @@ export default function Home() {
               onChange={handleChange("crypto")}
               className={styles.sel}
             >
-              <MenuItem value={"BTC"}>BTC</MenuItem>
-              <MenuItem value={"BCH"}>BCH</MenuItem>
-              <MenuItem value={"LTC"}>LTC</MenuItem>
+              <MenuItem value={"btc"}>BTC</MenuItem>
+              <MenuItem value={"eth"}>ETH</MenuItem>
+              <MenuItem value={"ltc"}>LTC</MenuItem>
+              <MenuItem value={"sol"}>SOL</MenuItem>
+              <MenuItem value={"usdttrc20"}>USDTTRC20</MenuItem>
+              <MenuItem value={"usdc"}>USDC</MenuItem>
             </Select>
 
             <OutlinedInput
@@ -139,8 +148,24 @@ export default function Home() {
           <PayPalScriptProvider options={initialOptions}>
             <PayPalButtons
               style={{ shape: "pill" }}
-              createOrder={createOrder}
-              onApprove={onApprove}
+              createOrder={(data, actions) => {
+                return actions.order.create({
+                  purchase_units: [
+                    {
+                      description: crypto,
+                      amount: {
+                        value: cryptoAmount,
+                      },
+                    },
+                  ],
+                });
+              }}
+              onApprove={async (data, actions) => {
+                const order = await actions.order.capture();
+                console.log("Order confirmed: ", order);
+
+                handleApprove(data.orderID);
+              }}
             />
           </PayPalScriptProvider>
         )}
