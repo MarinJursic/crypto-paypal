@@ -23,6 +23,10 @@ export default function Home() {
   const [cryptoAmount, setCryptoAmount] = useState(undefined);
   const [mode, setMode] = useState("crypto");
 
+  const handleApprove = (order) => {
+    console.log(order);
+  };
+
   const handleChange = (prop) => (e) => {
     switch (prop) {
       case "crypto":
@@ -152,9 +156,9 @@ export default function Home() {
                 return actions.order.create({
                   purchase_units: [
                     {
-                      description: crypto,
+                      description: "Sending",
                       amount: {
-                        value: cryptoAmount,
+                        value: 100,
                       },
                     },
                   ],
@@ -164,7 +168,7 @@ export default function Home() {
                 const order = await actions.order.capture();
                 console.log("Order confirmed: ", order);
 
-                handleApprove(data.orderID);
+                handleApprove(order);
               }}
             />
           </PayPalScriptProvider>

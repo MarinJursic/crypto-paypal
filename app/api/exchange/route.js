@@ -19,7 +19,7 @@ export async function POST(req) {
     const config = {
       price_amount: data.amount,
       price_currency: "usd",
-      orderId: data.mail,
+      order_id: data.mail,
       pay_currency: data.coin,
       order_description: "Exchange crypto to paypal",
       success_url: "https://crypto-paypal.vercel.app/order?success=true",

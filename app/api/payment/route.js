@@ -59,7 +59,7 @@ export async function POST(req) {
 
   if (valid && signature === req.headers["x-nowpayments-sig"]) {
     console.log(
-      `${payment.order_id} SENT $${payment.price_amount} of ${payment.pay_currency}!`
+      `${payment.order_id} SENT $${paid} of ${payment.pay_currency}!`
     );
 
     return NextResponse.json({ success: true });
