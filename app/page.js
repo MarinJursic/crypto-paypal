@@ -156,9 +156,9 @@ export default function Home() {
                 return actions.order.create({
                   purchase_units: [
                     {
-                      description: "Sending",
+                      description: wallet,
                       amount: {
-                        value: 100,
+                        value: parseInt(cryptoAmount),
                       },
                     },
                   ],
