@@ -22,9 +22,9 @@ export async function POST(req) {
       orderId: data.mail,
       pay_currency: data.coin,
       order_description: "Exchange crypto to paypal",
-      success_url: "http://localhost:3000/order?success=true",
-      cancel_url: "http://localhost:3000/order?success=false",
-      ipn_callback_url: "http://localhost:3000/api/payment",
+      success_url: "https://crypto-paypal.vercel.app/order?success=true",
+      cancel_url: "https://crypto-paypal.vercel.app/order?success=false",
+      ipn_callback_url: "https://crypto-paypal.vercel.app/api/payment",
     };
 
     const invoice = await npApi.createInvoice(config);
