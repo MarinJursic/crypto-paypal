@@ -1,8 +1,10 @@
+const NowPaymentsApi = require("@nowpaymentsio/nowpayments-api-js");
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
-  const data = await req.json();
-  let message = "";
+  let data = await req.json();
+
+  const npApi = new NowPaymentsApi({ apiKey: process.env.NPApi });
 
   if (data.method === "crypto") {
     if (!data.coin || !data.amount || !data.mail) {
@@ -14,9 +16,21 @@ export async function POST(req) {
 
     // CONTINUE CRYPTO -> PAYPAL EXCHANGE
 
-    console.log();
+    const config = {
+      price_amount: data.amount,
+      price_currency: "usd",
+      orderId: data.mail,
+      pay_currency: data.coin,
+      order_description: "Exchange crypto to paypal",
+      success_url: "http://localhost:3000/order?success=true",
+      cancel_url: "http://localhost:3000/order?success=false",
+      ipn_callback_url: "http://localhost:3000/api/payment",
+    };
 
-    message = `Successfuly transfered $${data.amount} worth of ${data.coin} to ${data.mail}!`;
+    const invoice = await npApi.createInvoice(config);
+
+    data.message = `Successfuly transfered $${data.amount} worth of ${data.coin} to ${data.mail}!`;
+    data.invoice = invoice.invoice_url;
   } else if (data.method === "paypal") {
     if (!data.coin || !data.amount || !data.wallet) {
       return NextResponse.json(
@@ -32,5 +46,5 @@ export async function POST(req) {
     return NextResponse.json({ error: "Invalid method" }, { status: 400 });
   }
 
-  return NextResponse.json({ ...data, message });
+  return NextResponse.json({ ...data });
 }

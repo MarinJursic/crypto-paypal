@@ -2,10 +2,21 @@
 
 import styles from "@/styles/page.module.scss";
 import { InputAdornment, MenuItem, OutlinedInput, Select } from "@mui/material";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const initialOptions = {
+  clientId:
+    "AY5XsZSGSHSaMKiLuIfFysPQSZL-u9Z9puU5Tj84H_dGkC8MXqs-PyzcSKg5zySF21FGiNc8K9bmCXi6",
+  currency: "USD",
+  intent: "capture",
+};
+
 export default function Home() {
+  const router = useRouter();
+
   const [crypto, setCrypto] = useState("");
   const [email, setEmail] = useState("");
   const [wallet, setWallet] = useState("");
@@ -50,7 +61,7 @@ export default function Home() {
     };
 
     postData().then((data) => {
-      alert(data.message);
+      router.push(data.invoice);
     });
   };
 
@@ -70,6 +81,7 @@ export default function Home() {
               <MenuItem value={"BTC"}>BTC</MenuItem>
               <MenuItem value={"BCH"}>BCH</MenuItem>
               <MenuItem value={"LTC"}>LTC</MenuItem>
+              <MenuItem value={"usdttrc20"}>USDT-TRC20</MenuItem>
             </Select>
             <OutlinedInput
               id="outlined-adornment-amount"
@@ -121,7 +133,17 @@ export default function Home() {
             <button onClick={() => setMode("crypto")}>Switch</button>
           </div>
         )}
-        <button onClick={submit}>Submit</button>
+        {mode === "crypto" ? (
+          <button onClick={submit}>Submit</button>
+        ) : (
+          <PayPalScriptProvider options={initialOptions}>
+            <PayPalButtons
+              style={{ shape: "pill" }}
+              createOrder={createOrder}
+              onApprove={onApprove}
+            />
+          </PayPalScriptProvider>
+        )}
       </section>
     </main>
   );
