@@ -1,11 +1,12 @@
 "use client";
 
+import PayPalCheckout from "@/components/PaypalCheckout";
 import styles from "@/styles/page.module.scss";
 import { InputAdornment, MenuItem, OutlinedInput, Select } from "@mui/material";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 const initialOptions = {
   clientId:
@@ -17,47 +18,49 @@ const initialOptions = {
 export default function Home() {
   const router = useRouter();
 
+  const [checkout, setCheckOut] = useState(false);
+
   const [crypto, setCrypto] = useState("");
   const [email, setEmail] = useState("");
   const [wallet, setWallet] = useState("");
   const [cryptoAmount, setCryptoAmount] = useState(undefined);
   const [mode, setMode] = useState("crypto");
-
-  const handleApprove = (order) => {
-    console.log(order);
-  };
+  const [allowSubmit, setAllowSubmit] = useState(false);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   const handleChange = (prop) => (e) => {
     switch (prop) {
       case "crypto":
-        setCrypto(e.target.value);
+        setCrypto((prev) => e.target.value);
         break;
       case "amount":
-        setCryptoAmount(e.target.value);
+        console.log(e.target.value);
+        setCryptoAmount((prev) => parseInt(e.target.value));
         break;
       case "email":
-        setEmail(e.target.value);
+        setEmail((prev) => e.target.value);
         break;
       case "wallet":
-        setWallet(e.target.value);
+        setWallet((prev) => e.target.value);
         break;
       default:
         break;
     }
+
+    forceUpdate();
   };
 
   const submit = (e) => {
     e.preventDefault();
 
     const data = {
-      method: mode,
       coin: crypto,
       amount: cryptoAmount,
       mail: email,
       wallet,
     };
     const postData = async () => {
-      const response = await fetch("/api/exchange", {
+      const response = await fetch("/api/payout", {
         method: "POST",
         body: JSON.stringify(data),
       });
@@ -72,6 +75,11 @@ export default function Home() {
       }
     });
   };
+
+  useEffect(() => {
+    if (wallet !== "" && crypto !== "" && cryptoAmount !== undefined) {
+    }
+  }, [crypto, cryptoAmount, wallet]);
 
   return (
     <main className={styles.main}>
@@ -149,30 +157,22 @@ export default function Home() {
         {mode === "crypto" ? (
           <button onClick={submit}>Submit</button>
         ) : (
-          <PayPalScriptProvider options={initialOptions}>
-            <PayPalButtons
-              style={{ shape: "pill" }}
-              createOrder={(data, actions) => {
-                return actions.order.create({
-                  purchase_units: [
-                    {
-                      description: wallet,
-                      amount: {
-                        value: parseInt(cryptoAmount),
-                      },
-                    },
-                  ],
-                });
-              }}
-              onApprove={async (data, actions) => {
-                const order = await actions.order.capture();
-                console.log("Order confirmed: ", order);
-
-                handleApprove(order);
-              }}
-            />
-          </PayPalScriptProvider>
+          <button
+            className="checkout"
+            onClick={() => {
+              setCheckOut(true);
+            }}
+          >
+            Checkout
+          </button>
         )}
+        {checkout ? (
+          <PayPalCheckout
+            amount={cryptoAmount}
+            crypto={crypto}
+            wallet={wallet}
+          />
+        ) : null}
       </section>
     </main>
   );
